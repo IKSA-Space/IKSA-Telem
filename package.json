@@ -1,58 +1,33 @@
 {
-  "name": "iksa-telem",
-  "productName": "iksa-telem",
-  "version": "1.0.0",
-  "description": "My Electron application description",
-  "main": "src/index.js",
+  "name": "iksa-telem-hub",
+  "version": "2.0.0",
+  "description": "A telemetry hub to contain all the telem from the EX-2E LV",
+  "main": "index.js",
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "genDoc": "jsdoc index.js -t node_modules/clean-jsdoc-theme"
   },
-  "keywords": [],
-  "author": {
-    "name": "Sam Neale",
-    "email": "sammneale@icloud.com"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sam-Neale/IKSA-Telem.git"
   },
-  "license": "MIT",
-  "config": {
-    "forge": {
-      "packagerConfig": {},
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "iksa_telem"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ]
-    }
+  "keywords": [
+    "IKSA",
+    "Telemetry"
+  ],
+  "type": "module",
+  "author": "Sam Neale",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sam-Neale/IKSA-Telem/issues"
   },
+  "homepage": "https://github.com/Sam-Neale/IKSA-Telem#readme",
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
-  },
-  "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.59",
-    "@electron-forge/maker-deb": "^6.0.0-beta.59",
-    "@electron-forge/maker-rpm": "^6.0.0-beta.59",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.59",
-    "@electron-forge/maker-zip": "^6.0.0-beta.59",
-    "electron": "13.2.1"
+    "atob": "^2.1.2",
+    "btoa": "^1.2.1",
+    "clean-jsdoc-theme": "^3.2.7",
+    "express": "^4.17.1",
+    "krpc.js": "git+https://github.com/lucaelin/krpc.js.git"
   }
 }
