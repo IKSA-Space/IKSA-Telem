@@ -28,12 +28,20 @@ let telemObj = {
                 Fuel: [0, 1],
                 Ox: [0, 1]
             },
-        }
+        },
+        ELEC: [0,1]
     },
     VALVES: {
         LPLFB: false,
         LFBS1: false,
         S1S2: false
+    },
+    VENTS: {
+        LFB: false,
+        S1: false,
+        S2: false,
+        GFLFB: false,
+        GFCORE: false
     }
 }
 
@@ -54,6 +62,9 @@ function refreshTelem(){
 }
 
 setInterval(refreshTelem, 500);
+
+//CUSTOM MEASURMENTS
+let elecPrevStore = 0;
 
 //Readouts
 const readOuts ={
@@ -89,7 +100,18 @@ const readOuts ={
             gflfb: document.getElementById("PROP_BUTTON_VALVE_GFLFB"),
             lfbs1: document.getElementById("PROP_BUTTON_VALVE_FLBS1"),
             s1s2: document.getElementById("PROP_BUTTON_VALVE_S1S2"),
+        },
+        vents:{
+            LFB: document.getElementById("PROP_BUTTON_VENT_LFB"),
+            S1: document.getElementById("PROP_BUTTON_VENT_S1"),
+            S2: document.getElementById("PROP_BUTTON_VENT_S2"),
+            GFLFB: document.getElementById("PROP_BUTTON_VENT_GFLFB"),
+            GFCORE: document.getElementById("PROP_BUTTON_VENT_GFCT"),
         }
+    },
+    elec:{
+        battLevel: document.getElementById("ELEC_PROGRESS_BATTLEVEL"),
+        draw: document.getElementById("ELEC_STAT_DRAW")
     }
 }
 const readOutFunctions = {
@@ -119,7 +141,7 @@ const readOutFunctions = {
         /**
          * Sets a colour,msg for the button
          * @param {HTMLElement} object 
-         * @param {string|boolean} state 
+         * @param {string|boolean|number} state 
          * @param {string} msg 
          */
         setState: function(object, state, msg){
@@ -133,10 +155,72 @@ const readOutFunctions = {
                     object.innerHTML = msg;
                     break;
                 default:
-                    object.className = 'btn btn-info';
-                    object.innerHTML = "ERROR||" + state
+                    if(state == -1){
+                        object.className = 'btn btn-warning';
+                        object.innerHTML = "NO CONTACT"    
+                    }else{
+                        object.className = 'btn btn-info';
+                        object.innerHTML = "ERROR||" + state
+                    }
+                    
                     break;
             }      
+        }
+    },
+    chart:{
+        store: new Map(),
+        addData: async function(chartEl, data){
+            if(readOutFunctions.chart.store.has(chartEl.id) == false){
+                const labels = [
+                    'T-0'
+                  ];
+                  const dataSetting = {
+                    labels: labels,
+                    datasets: [{
+                      label: 'Electrical Levels',
+                      backgroundColor: 'rgb(50, 50, 50)',
+                      borderColor: 'rgb(255, 255, 255)',
+                      data: [0],
+                    }]
+                  };
+                readOutFunctions.chart.store.set(chartEl.id, {
+                    values: [],
+                    id: chartEl.id,
+                    ctx: chartEl.getContext('2d'),
+                    // @ts-ignore
+                    chart: new Chart(chartEl.getContext('2d'), {
+                        type: 'line',
+                        data: dataSetting,
+                        options: {
+                            animation:{
+                                duration: 0
+                            },
+                            responsive: true,
+                            plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Vehicle Elec Levels'
+                            }
+                            }
+                        },
+                    })
+                })
+            }
+
+
+            let mapObj = readOutFunctions.chart.store.get(chartEl.id);
+            console.log(mapObj)
+            mapObj.values.push(data);
+            if(mapObj.values.length > 21){
+                mapObj.values.shift();
+            }
+            mapObj.chart.data.datasets[0].data = mapObj.values;
+            mapObj.chart.data.labels.push(telemObj.met.toFixed(1));
+            mapObj.chart.update();
+            readOutFunctions.chart.store.set(chartEl.id, mapObj);
         }
     }
 }
@@ -172,4 +256,21 @@ setInterval(()=>{
             readOutFunctions.button.setState(readOuts.fuel.valves.lfbs1, telemObj.VALVES.LFBS1, telemObj.VALVES.LFBS1 == true ? "Open" : "Closed");
             //S1 => S2
             readOutFunctions.button.setState(readOuts.fuel.valves.s1s2, telemObj.VALVES.S1S2, telemObj.VALVES.S1S2 == true ? "Open" : "Closed");
+        //Vents
+            //LFB
+            readOutFunctions.button.setState(readOuts.fuel.vents.LFB, telemObj.VENTS.LFB, telemObj.VENTS.LFB == true ? "Open" : "Closed")
+            //S1
+            readOutFunctions.button.setState(readOuts.fuel.vents.S1, telemObj.VENTS.S1, telemObj.VENTS.S1 == true ? "Open" : "Closed")
+            //S2
+            readOutFunctions.button.setState(readOuts.fuel.vents.S2, telemObj.VENTS.S2, telemObj.VENTS.S2 == true ? "Open" : "Closed")
+            //GFLFB
+            readOutFunctions.button.setState(readOuts.fuel.vents.GFLFB, telemObj.VENTS.GFLFB, telemObj.VENTS.GFLFB == true ? "Open" : "Closed")
+            //GFCORE
+            readOutFunctions.button.setState(readOuts.fuel.vents.GFCORE, telemObj.VENTS.GFCORE, telemObj.VENTS.GFCORE == true ? "Open" : "Closed")
+    //Electrical
+        //Total Levels Chart
+        readOutFunctions.progressBar.setPercent(readOuts.elec.battLevel, telemObj.fuel.ELEC);
+        //Draw
+        readOuts.elec.draw.innerHTML = `${(elecPrevStore - telemObj.fuel.ELEC[0]).toFixed(2)}/&#xBD;s`;
+        elecPrevStore = telemObj.fuel.ELEC[0];
 }, 500)
