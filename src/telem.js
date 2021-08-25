@@ -29,6 +29,11 @@ let telemObj = {
                 Ox: [0, 1]
             },
         }
+    },
+    VALVES: {
+        LPLFB: false,
+        LFBS1: false,
+        S1S2: false
     }
 }
 
@@ -82,7 +87,7 @@ const readOuts ={
         },
         valves: {
             gflfb: document.getElementById("PROP_BUTTON_VALVE_GFLFB"),
-            lfbs1: document.getElementById("PROP_BUTTON_VALVE_LFBS1"),
+            lfbs1: document.getElementById("PROP_BUTTON_VALVE_FLBS1"),
             s1s2: document.getElementById("PROP_BUTTON_VALVE_S1S2"),
         }
     }
@@ -114,11 +119,24 @@ const readOutFunctions = {
         /**
          * Sets a colour,msg for the button
          * @param {HTMLElement} object 
-         * @param {string} state 
+         * @param {string|boolean} state 
          * @param {string} msg 
          */
         setState: function(object, state, msg){
-            
+            switch(state){
+                case true:
+                    object.className = 'btn btn-success';
+                    object.innerHTML = msg;
+                    break;
+                case false:
+                    object.className = 'btn btn-danger';
+                    object.innerHTML = msg;
+                    break;
+                default:
+                    object.className = 'btn btn-info';
+                    object.innerHTML = "ERROR||" + state
+                    break;
+            }      
         }
     }
 }
@@ -149,6 +167,9 @@ setInterval(()=>{
             readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb4.ox, telemObj.fuel.LFB.LFB4.Ox);
         //Valves
             //GF => LFB
+            readOutFunctions.button.setState(readOuts.fuel.valves.gflfb, telemObj.VALVES.LPLFB, telemObj.VALVES.LPLFB == true ? "Open" : "Closed");
             //LFB => S1
+            readOutFunctions.button.setState(readOuts.fuel.valves.lfbs1, telemObj.VALVES.LFBS1, telemObj.VALVES.LFBS1 == true ? "Open" : "Closed");
             //S1 => S2
+            readOutFunctions.button.setState(readOuts.fuel.valves.s1s2, telemObj.VALVES.S1S2, telemObj.VALVES.S1S2 == true ? "Open" : "Closed");
 }, 500)
