@@ -2,31 +2,31 @@
 //Getting Telem
 let telemObj = {
     fuel:{
-        s1:{
-            fuel: 0.0,
-            ox: 0.0
+        S1:{
+            Fuel: [0, 1],
+            Ox: [0, 1]
         },
-        s2:{
-            fuel: 0.0,
-            ox: 0.0,
-            mono: 0.0
+        S2:{
+            Fuel: [0, 1],
+            Ox: [0, 1],
         },
-        lfb:{
-            lfb1:{
-                fuel: 0.0,
-                ox: 0.0
+        MONO: [0, 1],
+        LFB:{
+            LFB1:{
+                Fuel: [0, 1],
+                Ox: [0, 1]
             },
-            lfb2:{
-                fuel: 0.0,
-                ox: 0.0
+            LFB2:{
+                Fuel: [0, 1],
+                Ox: [0, 1]
             },
-            lfb3:{
-                fuel: 0.0,
-                ox: 0.0
+            LFB3:{
+                Fuel: [0, 1],
+                Ox: [0, 1]
             },
-            lfb4:{
-                fuel: 0.0,
-                ox: 0.0
+            LFB4:{
+                Fuel: [0, 1],
+                Ox: [0, 1]
             },
         }
     }
@@ -48,7 +48,7 @@ function refreshTelem(){
     xhr.send(data);
 }
 
-setInterval(refreshTelem, 5000);
+setInterval(refreshTelem, 500);
 
 //Readouts
 const readOuts ={
@@ -94,8 +94,20 @@ const readOutFunctions = {
          * @param {HTMLElement} object 
          * @param {number} percent 
          */
-        setPercent: function(object, percent){
+        setPercent: function(object, value, nonFuelFlag){
+            if(nonFuelFlag){
 
+            }else{
+                if(value != -1){
+                    const percent = (value[0] / value[1])*100;
+                    object.innerHTML = percent.toFixed(2).toString() + "%";
+                    object.style.height = percent.toString() + "%";
+                }else{
+                    object.innerHTML = "UNABLE TO CONTACT";
+                    object.style.height = "100%";
+                    object.classList.add("bg-danger")
+                }
+            }
         }
     },
     button:{
@@ -112,28 +124,29 @@ const readOutFunctions = {
 }
 
 setInterval(()=>{
+    console.log(telemObj)
 //Show Telem
     //Propulsion
         //S1
-        readOutFunctions.progressBar.setPercent(readOuts.fuel.s1.fuel, telemObj.fuel.s1.fuel);
-        readOutFunctions.progressBar.setPercent(readOuts.fuel.s1.ox, telemObj.fuel.s1.ox);
+        readOutFunctions.progressBar.setPercent(readOuts.fuel.s1.fuel, telemObj.fuel.S1.Fuel);
+        readOutFunctions.progressBar.setPercent(readOuts.fuel.s1.ox, telemObj.fuel.S1.Ox);
         //S2
-        readOutFunctions.progressBar.setPercent(readOuts.fuel.s2.fuel, telemObj.fuel.s2.fuel);
-        readOutFunctions.progressBar.setPercent(readOuts.fuel.s2.ox, telemObj.fuel.s2.ox);
-        readOutFunctions.progressBar.setPercent(readOuts.fuel.s2.mono, telemObj.fuel.s2.mono);
+        readOutFunctions.progressBar.setPercent(readOuts.fuel.s2.fuel, telemObj.fuel.S2.Fuel);
+        readOutFunctions.progressBar.setPercent(readOuts.fuel.s2.ox, telemObj.fuel.S2.Ox);
+        readOutFunctions.progressBar.setPercent(readOuts.fuel.s2.mono, telemObj.fuel.MONO);
         //LFB
             //LFB1        
-            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb1.fuel, telemObj.fuel.lfb.lfb1.fuel);
-            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb1.ox, telemObj.fuel.lfb.lfb1.ox);
+            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb1.fuel, telemObj.fuel.LFB.LFB1.Fuel);
+            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb1.ox, telemObj.fuel.LFB.LFB1.Ox);
             //LFB2        
-            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb2.fuel, telemObj.fuel.lfb.lfb2.fuel);
-            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb2.ox, telemObj.fuel.lfb.lfb2.ox);
+            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb2.fuel, telemObj.fuel.LFB.LFB2.Fuel);
+            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb2.ox, telemObj.fuel.LFB.LFB2.Ox);
             //LFB3        
-            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb3.fuel, telemObj.fuel.lfb.lfb3.fuel);
-            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb3.ox, telemObj.fuel.lfb.lfb3.ox);
+            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb3.fuel, telemObj.fuel.LFB.LFB3.Fuel);
+            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb3.ox, telemObj.fuel.LFB.LFB3.Ox);
             //LFB4        
-            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb4.fuel, telemObj.fuel.lfb.lfb4.fuel);
-            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb4.ox, telemObj.fuel.lfb.lfb4.ox);
+            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb4.fuel, telemObj.fuel.LFB.LFB4.Fuel);
+            readOutFunctions.progressBar.setPercent(readOuts.fuel.lfb.lfb4.ox, telemObj.fuel.LFB.LFB4.Ox);
         //Valves
             //GF => LFB
             //LFB => S1
