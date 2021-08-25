@@ -75,6 +75,11 @@ const vehicleStore = {
             T303:0,
             T304:0
         },
+        VALVES:{
+            LPLFB: false,
+            LFBS1: false,
+            S1S2: false
+        },
         attitude: {
             PIT: 0,
             ROL: 0,
@@ -139,6 +144,58 @@ const getPartThrust = async function (tag) {
                 }
             })
         })
+    })
+}
+const getValveState = async function (tag, target, openState, closedState){
+    return new Promise(resolve =>{
+        if(tag && target && openState && closedState){
+            vehicleStore.objects.vessel.parts.then(parts => {
+                parts.withTag(tag).then(part => {
+                    if (part.length == 1) {
+                        part[0].modules.then(async modules => {
+                            let test = {};
+                            modules.forEach(async module =>{
+                                if(target == await module.name && await module.name != "ModuleGenerator"){
+                                    if (await module.hasEvent(openState)){
+                                        resolve(false)
+                                    }else if(await module.hasEvent(closedState)){
+                                        resolve(true)
+                                    }else{
+                                        resolve(null);
+                                    }
+                                }else if(await module.name == "ModuleGenerator"){
+                                    if(test != null){
+                                        if (await module.hasEvent(openState)){
+                                            resolve(false);
+                                        }else if(await module.hasEvent(closedState)){
+                                            resolve(true)
+                                        }else{
+                                            test = null;
+                                        }
+                                    }else{
+                                        if (await module.hasEvent(openState)){
+                                            resolve(false);
+                                        }else if(await module.hasEvent(closedState)){
+                                            resolve(true)
+                                        }else{
+                                            resolve(null);
+                                        }
+                                    }
+                                }
+                            })
+                            /*const amount = await resourcesMod.amount(resource);
+                            const max = await resourcesMod.max(resource)
+                            resolve([amount, max]);*/
+                        })
+                    } else {
+                        resolve(-1);
+                    }
+                })
+            })
+        }else{
+            resolve(false)
+        }
+        
     })
 }
 
@@ -296,6 +353,16 @@ const telemGetter = async () => {
     })
     getPartThrust("T30-4").then(value => {
         vehicleStore.telem.THRUST.T304 = value
+    })
+    //VALVES
+    getValveState("LP", "ModuleGenerator", "Start Fueling", "Stop Fueling").then(state =>{
+        vehicleStore.telem.VALVES.LPLFB = state;
+    })
+    getValveState("VALVE-LFB-1", "ModuleToggleCrossfeed", "Enable Crossfeed", "Disable Crossfeed").then(state =>{
+        vehicleStore.telem.VALVES.LFBS1 = state;
+    })
+    getValveState("VALVE-S1S2", "ModuleToggleCrossfeed", "Enable Crossfeed", "Disable Crossfeed").then(state =>{
+        vehicleStore.telem.VALVES.S1S2 = state;
     })
     /*getComms().then(value =>{
         vehicleStore.telem.COMM.name = value.name;
