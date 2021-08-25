@@ -68,12 +68,12 @@ const vehicleStore = {
             ELEC: 0
         },
         THRUST:{
-            REM3T: 0,
-            REI2: 0,
-            T301:0,
-            T302:0,
-            T303:0,
-            T304:0
+            REM3: [0,1],
+            REI2: [0,1],
+            T301:[0,1],
+            T302:[0,1],
+            T303:[0,1],
+            T304:[0,1],
         },
         VALVES:{
             LPLFB: false,
@@ -99,6 +99,14 @@ const vehicleStore = {
         COMM: {
             name: "",
             delay: ""
+        },
+        GIMBAL:{
+            REM3: [false,0.0,false,0.0],
+            REI2: [false,0.0,false,0.0],
+            T301:[false,0.0,false,0.0],
+            T302:[false,0.0,false,0.0],
+            T303:[false,0.0,false,0.0],
+            T304:[false,0.0,false,0.0]
         }
     }
 }
@@ -145,7 +153,40 @@ const getPartThrust = async function (tag) {
             parts.withTag(tag).then(part => {
                 if (part.length == 1) {
                     part[0].engine.then(async (engineMod) => {
-                        resolve(await engineMod.thrust);
+                        resolve([await engineMod.thrust, await engineMod.maxThrust]);
+                    })
+                } else {
+                    resolve(-1)
+                }
+            })
+        })
+    })
+}
+
+const getPartGimbal = async function(tag){
+    return new Promise(resolve => {
+        vehicleStore.objects.vessel.parts.then(parts => {
+            parts.withTag(tag).then(part => {
+                if (part.length == 1) {
+                    part[0].engine.then(async (engineMod) => {
+                        let gimbalState = await engineMod.gimballed;
+                        resolve([gimbalState, await engineMod.gimbalRange, gimbalState == true ? await engineMod.gimbalLocked : false, gimbalState == true ? await engineMod.gimbalLimit : 0]);
+                    })
+                } else {
+                    resolve(-1)
+                }
+            })
+        })
+    })
+}
+
+const getPartThrottle = async function(tag){
+    return new Promise(resolve => {
+        vehicleStore.objects.vessel.parts.then(parts => {
+            parts.withTag(tag).then(part => {
+                if (part.length == 1) {
+                    part[0].engine.then(async (engineMod) => {
+                        resolve(await engineMod.throttle);
                     })
                 } else {
                     resolve(-1)
@@ -361,24 +402,42 @@ const telemGetter = async () => {
     getElec().then(value => {
         vehicleStore.telem.fuel.ELEC = value
     })
-    //Thrust
+    //Engines
     getPartThrust("REI2").then(value => {
         vehicleStore.telem.THRUST.REI2 = value
     })
+    getPartGimbal("REI2").then(value =>{
+        vehicleStore.telem.GIMBAL.REI2 = value;
+    })
     getPartThrust("REM3").then(value => {
-        vehicleStore.telem.THRUST.REM3T = value
+        vehicleStore.telem.THRUST.REM3 = value
+    })
+    getPartGimbal("REM3").then(value =>{
+        vehicleStore.telem.GIMBAL.REM3 = value;
     })
     getPartThrust("T30-1").then(value => {
         vehicleStore.telem.THRUST.T301 = value
     })
+    getPartGimbal("T30-1").then(value =>{
+        vehicleStore.telem.GIMBAL.T301 = value;
+    })
     getPartThrust("T30-2").then(value => {
         vehicleStore.telem.THRUST.T302 = value
+    })
+    getPartGimbal("T30-2").then(value =>{
+        vehicleStore.telem.GIMBAL.T302 = value;
     })
     getPartThrust("T30-3").then(value => {
         vehicleStore.telem.THRUST.T303 = value
     })
+    getPartGimbal("T30-3").then(value =>{
+        vehicleStore.telem.GIMBAL.T303 = value;
+    })
     getPartThrust("T30-4").then(value => {
         vehicleStore.telem.THRUST.T304 = value
+    })
+    getPartGimbal("T30-4").then(value =>{
+        vehicleStore.telem.GIMBAL.T304 = value;
     })
     //VALVES
     getValveState("LP", "ModuleGenerator", "Start Fueling", "Stop Fueling").then(state =>{
