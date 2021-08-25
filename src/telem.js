@@ -44,7 +44,7 @@ function refreshTelem(){
         }
     });
 
-    xhr.open("GET", "http://iksaauto.va-center.com:3001/telem?auth=IKSA_AUTH_rg7euhgahiuo");
+    xhr.open("GET", "http://localhost:3001/telem?auth=IKSA_AUTH_rg7euhgahiuo");
     xhr.send(data);
 }
 
