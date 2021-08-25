@@ -80,6 +80,13 @@ const vehicleStore = {
             LFBS1: false,
             S1S2: false
         },
+        VENTS:{
+            LFB: false,
+            S1: false,
+            S2: false,
+            GFLFB: false,
+            GFCORE: false
+        },
         attitude: {
             PIT: 0,
             ROL: 0,
@@ -126,6 +133,7 @@ const KRPCInit = async () =>{
         vehicleStore.objects.refFlights.surface = await vehicleStore.objects.vessel.flight(vehicleStore.objects.refFrames.surface)
         //vehicleStore.objects.comms = await (await vehicleStore.objects.client.services.remoteTech).comms(vehicleStore.objects.vessel);
         setInterval(telemGetter, 500);
+        //getModuleList("VENT-S1-1")
         console.log("STARTED TELEM")
       }
     }, 10000);
@@ -146,6 +154,24 @@ const getPartThrust = async function (tag) {
         })
     })
 }
+
+const getModuleList = async function (tag){
+    return new Promise(resolve =>{
+        vehicleStore.objects.vessel.parts.then(parts => {
+            parts.withTag(tag).then(part => {
+                if (part.length == 1) {
+                    part[0].modules.then(async modules => {
+                        modules.forEach(async module =>{
+                            console.log(await module.name)
+                        })
+                        resolve()
+                    })
+                }
+            })
+        })
+    })
+}
+
 const getValveState = async function (tag, target, openState, closedState){
     return new Promise(resolve =>{
         if(tag && target && openState && closedState){
@@ -363,6 +389,21 @@ const telemGetter = async () => {
     })
     getValveState("VALVE-S1S2", "ModuleToggleCrossfeed", "Enable Crossfeed", "Disable Crossfeed").then(state =>{
         vehicleStore.telem.VALVES.S1S2 = state;
+    })
+    getValveState("VENT-LFB1", "makeSteam", "Show Vapor", "Hide Vapor").then(state =>{
+        vehicleStore.telem.VENTS.LFB = state;
+    })
+    getValveState("VENT-S1-1", "makeSteam", "Show Vapor", "Hide Vapor").then(state =>{
+        vehicleStore.telem.VENTS.S1 = state;
+    })
+    getValveState("VENT-S2-1", "makeSteam", "Show Vapor", "Hide Vapor").then(state =>{
+        vehicleStore.telem.VENTS.S2 = state;
+    })
+    getValveState("VENT-LFB-TOWER-1", "makeSteam", "Show Vapor", "Hide Vapor").then(state =>{
+        vehicleStore.telem.VENTS.GFLFB = state;
+    })
+    getValveState("VENT-CT-3", "makeSteam", "Show Vapor", "Hide Vapor").then(state =>{
+        vehicleStore.telem.VENTS.GFCORE = state;
     })
     /*getComms().then(value =>{
         vehicleStore.telem.COMM.name = value.name;
