@@ -1,18 +1,7 @@
-/* Main Ground Facilities script */
-// @ts-check
-console.log("IKSA Telem Hub")
+import KRPC from 'https://iksaauto.va-center.com/assets/js/krpc.js';
 
-import KRPC from './node_modules/krpc.js/lib/KRPC.js';
-import express from 'express';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-// @ts-ignore
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename)
 
-//KRPC
-
+const cors = require('cors');
 const vehicleStore = {
     objects: {
         refFlights: {
@@ -71,24 +60,18 @@ const vehicleStore = {
 const KRPCInit = async () =>{ 
     const options = {
       name: 'IKSA-Telem-Hub',
-      host: "144.138.103.239",
-      rpcPort: 49990,
-      streamPort: 49991
+      host: "tmog.site",
+      rpcPort: 40000,
+      streamPort: 40001
     };
     vehicleStore.objects.client = new KRPC(options)
     let timeout = true
-    try{
-        vehicleStore.objects.client.load().then(async ()=>{
-        timeout = false
-        })
-    }catch(err){
-        console.error("ERROR!")
-        console.debug("A record of this error has been saved at " + __dirname + "/errorLog.log")
-        fs.writeFileSync(__dirname + "/errorLog.log", err)
-    }
+    vehicleStore.objects.client.load().then(async ()=>{
+      timeout = false
+    })
     setTimeout(async function(){
       if(timeout) {
-        console.error("Unable to connect")
+        alert("Unable to connect")
       }else{
         vehicleStore.objects.sc = await vehicleStore.objects.client.services.spaceCenter;
         vehicleStore.objects.vessel = await vehicleStore.objects.sc.activeVessel;
@@ -96,9 +79,8 @@ const KRPCInit = async () =>{
         vehicleStore.objects.refFrames.orbit = await vehicleStore.objects.vessel.orbit
         vehicleStore.objects.refFrames.surface = await vehicleStore.objects.vessel.surfaceReferenceFrame
         vehicleStore.objects.refFlights.surface = await vehicleStore.objects.vessel.flight(vehicleStore.objects.refFrames.surface)
-        //vehicleStore.objects.comms = await (await vehicleStore.objects.client.services.remoteTech).comms(vehicleStore.objects.vessel);
+        vehicleStore.objects.comms = await (await vehicleStore.objects.client.services.remoteTech).comms(vehicleStore.objects.vessel);
         setInterval(telemGetter, 500);
-        console.log("STARTED TELEM")
       }
     }, 10000);
 }
@@ -174,6 +156,7 @@ const getComms = async function () {
 }
 
 const telemGetter = async () => {
+    vehicleStore.objects.refFlights.surface.verticalSpeed.then(value => console.log(value));
     vehicleStore.objects.refFlights.surface.verticalSpeed.then(value => vehicleStore.telem.VSPD = value);
     vehicleStore.objects.refFlights.surface.meanAltitude.then(value => vehicleStore.telem.alt = value);
     vehicleStore.objects.refFlights.surface.trueAirSpeed.then(value => vehicleStore.telem.SSPD = value);
@@ -216,7 +199,7 @@ const telemGetter = async () => {
         vehicleStore.telem.fuel.S2.Ox = value
     })
     //Mono
-    getPartFuel("S2-M1", "MonoPropellant").then(value => {
+    getPartFuel("S2M-1", "MonoPropellant").then(value => {
         vehicleStore.telem.fuel.MONO = value
     })
     //Elec
@@ -229,34 +212,25 @@ const telemGetter = async () => {
     getPartThrust("RE-M3").then(value => {
         vehicleStore.telem.REM3T = value
     })
-    /*getComms().then(value =>{
+    getComms().then(value =>{
         vehicleStore.telem.COMM.name = value.name;
         vehicleStore.telem.COMM.delay = value.delay;
-    })*/
+    })
 }
 KRPCInit()
 
 
+const express = require('express');
 const app = express();
-
+app.use(cors())
 app.get("/vehicle", function(req,res){
     res.send(JSON.stringify(vehicleStore.telem));
 })
-
-//Express
-let auth = "IKSA_AUTH_rg7euhgahiuo"
-const expressApp = express();
-expressApp.get("/telem", (req,res) =>{
-    if(req.query){
-        if(req.query.auth == auth){
-            res.status(200).send(JSON.stringify(vehicleStore.telem, null, 2))
-        }else{
-            res.sendStatus(403);
-        }
-    }else{
-        res.sendStatus(401);
-    }
-})
-expressApp.listen(3001, ()=>{
-    console.log("IKSA Telemetry Hub listening on 3001");
-});
+const fs = require("fs")
+const credentials = {
+    key: fs.readFileSync(`${__dirname}/keys/privkey.pem`, "utf-8"),
+    cert: fs.readFileSync(`${__dirname}/keys/fullchain.pem`, "utf-8")
+}
+const https = require("https")
+const httpsServer = https.createServer(credentials, app);
+httpsServer.listen(83);
