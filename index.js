@@ -38,7 +38,24 @@ const vehicleStore = {
             SAS: false
         },
         fuel: {
-            BACC: 0,
+            LFB: {
+                LFB1: {
+                    Fuel: 0,
+                    Ox: 0
+                },
+                LFB2: {
+                    Fuel: 0,
+                    Ox: 0
+                },
+                LFB3: {
+                    Fuel: 0,
+                    Ox: 0
+                },
+                LFB4: {
+                    Fuel: 0,
+                    Ox: 0
+                }
+            },
             S1: {
                 Fuel: 0,
                 Ox: 0
@@ -50,8 +67,14 @@ const vehicleStore = {
             MONO: 0,
             ELEC: 0
         },
-        REM3T: 0,
-        KR1T: 0,
+        THRUST:{
+            REM3T: 0,
+            REI2: 0,
+            T301:0,
+            T302:0,
+            T303:0,
+            T304:0
+        },
         attitude: {
             PIT: 0,
             ROL: 0,
@@ -193,9 +216,41 @@ const telemGetter = async () => {
     vehicleStore.objects.refFlights.surface.latitude.then(value => vehicleStore.telem.LOC.LAT = value);
     vehicleStore.objects.vessel.met.then(value => vehicleStore.telem.met=value)
     //Fuel
-    //BACC
-    getPartFuel("BACC-1", "SolidFuel").then(value => {
-        vehicleStore.telem.fuel.BACC = value
+    //LFB1
+    //fuel
+    getPartFuel("LFB1-1", "LiquidFuel").then(value => {
+        vehicleStore.telem.fuel.LFB.LFB1.Fuel = value
+    })
+    //Ox
+    getPartFuel("LFB1-1", "Oxidizer").then(value => {
+        vehicleStore.telem.fuel.LFB.LFB1.Ox = value
+    })
+    //LFB2
+    //fuel
+    getPartFuel("LFB2-1", "LiquidFuel").then(value => {
+        vehicleStore.telem.fuel.LFB.LFB2.Fuel = value
+    })
+    //Ox
+    getPartFuel("LFB2-1", "Oxidizer").then(value => {
+        vehicleStore.telem.fuel.LFB.LFB2.Ox = value
+    })
+    //LFB3
+    //fuel
+    getPartFuel("LFB3-1", "LiquidFuel").then(value => {
+        vehicleStore.telem.fuel.LFB.LFB3.Fuel = value
+    })
+    //Ox
+    getPartFuel("LFB3-1", "Oxidizer").then(value => {
+        vehicleStore.telem.fuel.LFB.LFB3.Ox = value
+    })
+    //LFB4
+    //fuel
+    getPartFuel("LFB4-1", "LiquidFuel").then(value => {
+        vehicleStore.telem.fuel.LFB.LFB4.Fuel = value
+    })
+    //Ox
+    getPartFuel("LFB4-1", "Oxidizer").then(value => {
+        vehicleStore.telem.fuel.LFB.LFB4.Ox = value
     })
     //S1
     //fuel
@@ -223,11 +278,24 @@ const telemGetter = async () => {
     getElec().then(value => {
         vehicleStore.telem.fuel.ELEC = value
     })
-    getPartThrust("KR-1").then(value => {
-        vehicleStore.telem.KR1T = value
+    //Thrust
+    getPartThrust("REI2").then(value => {
+        vehicleStore.telem.THRUST.REI2 = value
     })
-    getPartThrust("RE-M3").then(value => {
-        vehicleStore.telem.REM3T = value
+    getPartThrust("REM3").then(value => {
+        vehicleStore.telem.THRUST.REM3T = value
+    })
+    getPartThrust("T30-1").then(value => {
+        vehicleStore.telem.THRUST.T301 = value
+    })
+    getPartThrust("T30-2").then(value => {
+        vehicleStore.telem.THRUST.T302 = value
+    })
+    getPartThrust("T30-3").then(value => {
+        vehicleStore.telem.THRUST.T303 = value
+    })
+    getPartThrust("T30-4").then(value => {
+        vehicleStore.telem.THRUST.T304 = value
     })
     /*getComms().then(value =>{
         vehicleStore.telem.COMM.name = value.name;
