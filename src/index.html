@@ -9,8 +9,8 @@
   </head>
   <body class="bg-dark px-5 py-2 text-light">
     <div class="w-100 px-5 d-inline-block mt-3 mb-0" id="missionHead">
-      <h1 class="float-start">MISSION_NAME</h1>
-      <h1 class="float-end">MISSION_COUNT</h1>
+      <h1 class="float-start" id="missionName">MISSION_NAME</h1>
+      <h1 class="float-end" id="missionCount">MISSION_COUNT</h1>
     </div>
     <hr>
     <ul class="nav nav-pills mb-3" id="mission-Tabs" role="tablist">
@@ -219,6 +219,12 @@
               <h4 id="ELEC_STAT_DRAW">0/&#xBD;s</h4>
             </div>
           </div>
+          <div class="col">
+            <div class="bg-dark shadow text-light rounded text-center p-3">
+              <h3>Generator</h3>
+              <button class="btn btn-success" id="ELEC_BUTTON_GEN">Open</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="tab-pane fade" id="pills-tab-engine" role="tabpanel" aria-labelledby="pills-nav-engine">
@@ -255,6 +261,49 @@
       </div>
       <div class="tab-pane fade" id="pills-tab-orbit" role="tabpanel" aria-labelledby="pills-nav-orbit">
         <h1>Orbit Tab</h1>
+        <h2>Values</h2>
+        <div class="row gx-5">
+          <div class="col text-center">
+            <div class="bg-dark p-3 shadow rounded">
+              <h2>0km</h2>
+              <h5>Apogee</h5>
+            </div>
+          </div>
+          <div class="col text-center">
+            <div class="bg-dark p-3 shadow rounded">
+              <h2>0km</h2>
+              <h5>Perigee</h5>
+            </div>
+          </div>
+          <div class="col text-center">
+            <div class="bg-dark p-3 shadow rounded">
+              <h2>0º</h2>
+              <h5>Incline</h5>
+            </div>
+          </div>
+        </div>
+        <br>
+        <h2>Times</h2>
+        <div class="row gx-5">
+          <div class="col text-center">
+            <div class="bg-dark p-3 shadow rounded">
+              <h2>0s</h2>
+              <h5>Apogee</h5>
+            </div>
+          </div>
+          <div class="col text-center">
+            <div class="bg-dark p-3 shadow rounded">
+              <h2>0s</h2>
+              <h5>Perigee</h5>
+            </div>
+          </div>
+          <div class="col text-center">
+            <div class="bg-dark p-3 shadow rounded">
+              <h2>0s</h2>
+              <h5>Period</h5>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="tab-pane fade" id="pills-tab-comms" role="tabpanel" aria-labelledby="pills-nav-comms">
         <h1>Communications Tab</h1>
@@ -274,8 +323,6 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
-    <script src="telem.js">
-      
-    </script>
+    <script src="telem.js"></script>
   </body>
 </html>

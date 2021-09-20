@@ -32,6 +32,7 @@ let telemObj = {
         ELEC: [0,1]
     },
     VALVES: {
+        ELEC: false,
         LPLFB: false,
         LFBS1: false,
         S1S2: false
@@ -111,7 +112,8 @@ const readOuts ={
     },
     elec:{
         battLevel: document.getElementById("ELEC_PROGRESS_BATTLEVEL"),
-        draw: document.getElementById("ELEC_STAT_DRAW")
+        draw: document.getElementById("ELEC_STAT_DRAW"),
+        gen: document.getElementById("ELEC_BUTTON_GEN")
     }
 }
 const readOutFunctions = {
@@ -252,6 +254,8 @@ setInterval(()=>{
         //Valves
             //GF => LFB
             readOutFunctions.button.setState(readOuts.fuel.valves.gflfb, telemObj.VALVES.LPLFB, telemObj.VALVES.LPLFB == true ? "Open" : "Closed");
+            //ECEC
+            readOutFunctions.button.setState(readOuts.elec.gen, telemObj.VALVES.ELEC, telemObj.VALVES.ELEC == true ? "Open" : "Closed");
             //LFB => S1
             readOutFunctions.button.setState(readOuts.fuel.valves.lfbs1, telemObj.VALVES.LFBS1, telemObj.VALVES.LFBS1 == true ? "Open" : "Closed");
             //S1 => S2
@@ -271,6 +275,40 @@ setInterval(()=>{
         //Total Levels Chart
         readOutFunctions.progressBar.setPercent(readOuts.elec.battLevel, telemObj.fuel.ELEC);
         //Draw
-        readOuts.elec.draw.innerHTML = `${(elecPrevStore - telemObj.fuel.ELEC[0]).toFixed(2)}/&#xBD;s`;
+        readOuts.elec.draw.innerHTML = `${((elecPrevStore - telemObj.fuel.ELEC[0])/2).toFixed(2)}/s`;
         elecPrevStore = telemObj.fuel.ELEC[0];
 }, 500)
+
+
+
+
+let data = {};
+      function reloadData(){
+        const xhr = new XMLHttpRequest();
+        xhr.withCredentials = true;
+        xhr.addEventListener("readystatechange", function () {
+          if (this.readyState === this.DONE) {
+            data = JSON.parse(this.responseText)
+            reloadName();
+          }
+        });
+
+        xhr.open("GET", "https://raw.githubusercontent.com/IKSA-Space/LaunchData/main/data.json");
+
+        xhr.send(null);
+      }
+      reloadData()
+      function reloadName(){
+        document.getElementById("missionName").innerHTML = data.LaunchName;
+      }
+      function reloadTime(){
+        const currentDate = new Date();
+        console.log(currentDate.toString(), new Date(data.TTime * 1000).toString(), currentDate.getTime(), data.TTime * 1000)
+        if(currentDate.getTime() <= data.TTime * 1000){
+            document.getElementById("missionCount").innerHTML = `T-${new Date(data.TTime * 1000 - currentDate.getTime()).toISOString().substr(11, 8)}`
+        }else{
+          document.getElementById("missionCount").innerHTML = `T+${telemObj.met.toFixed()}s`
+        }
+      }
+      setInterval(reloadData, 30000);
+      setInterval(reloadTime, 500);
