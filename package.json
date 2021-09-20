@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "genDoc": "jsdoc index.js -t node_modules/clean-jsdoc-theme"
+    "genDoc": "jsdoc index.js -t node_modules/clean-jsdoc-theme",
+    "install": "npm i https://github.com/lucaelin/krpc.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "btoa": "^1.2.1",
     "clean-jsdoc-theme": "^3.2.7",
     "express": "^4.17.1",
-    "krpc.js": "git+https://github.com/lucaelin/krpc.js.git"
+    "krpc.js": "git+https://github.com/lucaelin/krpc.js.git",
+    "request": "^2.88.2"
   }
 }
